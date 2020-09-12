@@ -42,7 +42,7 @@ public interface MQAdmin {
      * @param key accesskey
      * @param newTopic topic name
      * @param queueNum topic's queue number
-     * @param topicSysFlag topic system flag
+     * @param topicSysFlag topic system flag, default value is 0
      */
     void createTopic(String key, String newTopic, int queueNum, int topicSysFlag)
         throws MQClientException;

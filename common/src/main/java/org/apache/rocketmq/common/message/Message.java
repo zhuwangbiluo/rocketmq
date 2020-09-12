@@ -24,11 +24,25 @@ import java.util.Map;
 
 public class Message implements Serializable {
     private static final long serialVersionUID = 8445773977080406428L;
-
+    /**
+     * 消息所属主题
+     */
     private String topic;
+    /**
+     * 消息Flag（RocketMQ不作处理）
+     */
     private int flag;
+    /**
+     * 扩展属性
+     */
     private Map<String, String> properties;
+    /**
+     * 消息体
+     */
     private byte[] body;
+    /**
+     * 事务ID（支持事务消息特征）
+     */
     private String transactionId;
 
     public Message() {
@@ -43,12 +57,16 @@ public class Message implements Serializable {
         this.flag = flag;
         this.body = body;
 
-        if (tags != null && tags.length() > 0)
+        //注：以下扩展属性存储在Message的properties中
+        //消息tag，用于消息过滤
+        if (tags != null && tags.length() > 0) {
             this.setTags(tags);
-
-        if (keys != null && keys.length() > 0)
+        }
+        //Message索引键，多个用空格隔开，RocketMQ可以根据这些key快速检索到消息
+        if (keys != null && keys.length() > 0) {
             this.setKeys(keys);
-
+        }
+        //消息发送时是否等消息存储完成后再返回
         this.setWaitStoreMsgOK(waitStoreMsgOK);
     }
 
@@ -81,13 +99,13 @@ public class Message implements Serializable {
     public void putUserProperty(final String name, final String value) {
         if (MessageConst.STRING_HASH_SET.contains(name)) {
             throw new RuntimeException(String.format(
-                "The Property<%s> is used by system, input another please", name));
+                    "The Property<%s> is used by system, input another please", name));
         }
 
         if (value == null || value.trim().isEmpty()
-            || name == null || name.trim().isEmpty()) {
+                || name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(
-                "The name or value of property can not be null or blank string!"
+                    "The name or value of property can not be null or blank string!"
             );
         }
 
@@ -151,9 +169,9 @@ public class Message implements Serializable {
 
     public boolean isWaitStoreMsgOK() {
         String result = this.getProperty(MessageConst.PROPERTY_WAIT_STORE_MSG_OK);
-        if (null == result)
+        if (null == result) {
             return true;
-
+        }
         return Boolean.parseBoolean(result);
     }
 
@@ -208,11 +226,11 @@ public class Message implements Serializable {
     @Override
     public String toString() {
         return "Message{" +
-            "topic='" + topic + '\'' +
-            ", flag=" + flag +
-            ", properties=" + properties +
-            ", body=" + Arrays.toString(body) +
-            ", transactionId='" + transactionId + '\'' +
-            '}';
+                "topic='" + topic + '\'' +
+                ", flag=" + flag +
+                ", properties=" + properties +
+                ", body=" + Arrays.toString(body) +
+                ", transactionId='" + transactionId + '\'' +
+                '}';
     }
 }
