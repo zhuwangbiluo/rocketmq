@@ -108,7 +108,12 @@ public class BrokerStartup {
             }
 
             final BrokerConfig brokerConfig = new BrokerConfig();
+
+            //设置NameServer信息
             brokerConfig.setNamesrvAddr("127.0.0.1:9876");
+            //开启对filter的支持
+            brokerConfig.setEnablePropertyFilter(true);
+
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
 
