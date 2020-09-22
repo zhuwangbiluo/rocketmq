@@ -60,7 +60,7 @@ public class Consumer {
         /*
          * Subscribe one more more topics to consume.
          */
-        consumer.subscribe("TopicTest", MessageSelector.bySql("a > 5"));
+        consumer.subscribe("TopicTest", MessageSelector.bySql("a >= 0"));
 
         /*
          *  Register callback to execute on arrival of messages fetched from brokers.
