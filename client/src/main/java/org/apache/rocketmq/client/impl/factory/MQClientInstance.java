@@ -173,6 +173,8 @@ public class MQClientInstance {
 
             info.setOrderTopic(true);
         } else {
+            //循环遍历路由 信息 QueueData 信息，如果队列 没有写权 限，则继续遍历下 一个QueueData ；根据 brokerName 找到 brokerData 信息 ，找不 到或没有找到 Master 节点，则
+            //遍历下一个 QueueData ；根据写队列个数，根据 topic＋序号 MessageQueue ，填充topicPublishlnfo List QuueMessage 完成消息发送的路由查找
             List<QueueData> qds = route.getQueueDatas();
             Collections.sort(qds);
             for (QueueData qd : qds) {
@@ -608,6 +610,7 @@ public class MQClientInstance {
             if (this.lockNamesrv.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
                 try {
                     TopicRouteData topicRouteData;
+                    //如果 isDefault true ，则使用 认主题去查询，如果查询到路由信息，则换路由信息中读写队列个数为消息生产者默认的队列个数（defaultTopicQueueNums ）；
                     if (isDefault && defaultMQProducer != null) {
                         topicRouteData = this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(defaultMQProducer.getCreateTopicKey(),
                             1000 * 3);
@@ -618,10 +621,12 @@ public class MQClientInstance {
                                 data.setWriteQueueNums(queueNums);
                             }
                         }
+                        // 如 isDefault false ，则使用参数 topic 去查询；如果未 询到路由信息，则返回 false ，表示路由信息未变化
                     } else {
                         topicRouteData = this.mQClientAPIImpl.getTopicRouteInfoFromNameServer(topic, 1000 * 3);
                     }
                     if (topicRouteData != null) {
+                        //如果路由信息找到，与本地缓存中的路由信息进行对比，判断路由信息是否发生了改变，如果未发生变化，则直接返回 false
                         TopicRouteData old = this.topicRouteTable.get(topic);
                         boolean changed = topicRouteDataIsChange(old, topicRouteData);
                         if (!changed) {
@@ -667,6 +672,7 @@ public class MQClientInstance {
                             this.topicRouteTable.put(topic, cloneTopicRouteData);
                             return true;
                         }
+                        //如果未查询到路由信息，则返回 false ，表示路由信息未变化
                     } else {
                         log.warn("updateTopicRouteInfoFromNameServer, getTopicRouteInfoFromNameServer return null, Topic: {}", topic);
                     }
@@ -686,7 +692,6 @@ public class MQClientInstance {
         } catch (InterruptedException e) {
             log.warn("updateTopicRouteInfoFromNameServer Exception", e);
         }
-
         return false;
     }
 
